@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { directory, profile } from "../pages";
 import {useQuery, useMutation, queryClient} from 'react-query'
 
@@ -7,6 +7,7 @@ export const GlobalContext = createContext();
 
 
 const GlobalContextProvider = ({ children }) => {
+
 
     async function getData(url = ''){
         const response = await fetch(url,{
@@ -23,45 +24,7 @@ const GlobalContextProvider = ({ children }) => {
     )
 
     
-
-    
-    async function updateData(url='',body={}){
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers:{
-          'Content-Type':'application/json',
-        },
-        body: JSON.stringify(body)
-      });
-      return response.json();
-    }
-    async function deleteData(url=''){
-      const response = await fetch(url,{
-        method:'DELETE',
-        headers:{
-          'Content-Type':'application/json',
-        },
-      });
-      return response.json();
-    }
-    // async function findByName(url=''){
-    //   const response = await fetch(url, {
-    //     method:'GET',
-    //     headers:{
-    //       'Content-Type':'application/json'
-    //     },
-    //   });
-    //   return response.json();
-    // }
-
-    
-
-    
     //fetch
-    const [data, setData] = useState(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [isError, setIsError] = useState(false)
-    const [isSuccess, setIsSuccess] = useState(false)
     const [filter, setFilter] = useState('')
   
     //modal member buttontype sidebar
@@ -89,14 +52,6 @@ const GlobalContextProvider = ({ children }) => {
         value={{
           propsReactQuery,
           getData,
-          
-          updateData,
-          deleteData,
-          //findByName,
-          isLoading,setIsLoading,
-          isError,setIsError,
-          isSuccess, setIsSuccess,
-          data, setData,
           filter,setFilter,
           open,setOpen,
           sidebarOpen,setSidebarOpen,

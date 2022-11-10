@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
-  console.log('haciendo peticion')
+
   if (req.method === "GET") {
-    console.log('haciendo peticion get')
+    
     async function getData(url = "") {
       const response = await fetch(url, {
         method: "GET",
@@ -18,20 +18,27 @@ export default async function handler(req, res) {
       res.status(401).end();
       
     }
-  }else if(req.method === 'POST'){
-    console.log('haciendo peticion post')
 
-    try {
-      const data = await postData('http://localhost:8000/api/member', req.body)
-      
-      res.status(201).json(data)
-    } catch (error) {
-      console.log(error);
-      res.status(401).end();
+    async function getDataByName(url = "") {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.json();
     }
 
-    async function postData(url='',body={}){
+    try {
+      
+    } catch (error) {
+      
+    }
+  }else if(req.method === 'POST'){
+    
 
+    async function postData(url='',body={}){
+      
       const response = await fetch(url,{
         method:'POST',
         headers:{
@@ -42,6 +49,60 @@ export default async function handler(req, res) {
       return response.json();
       
     }
+
+    try {
+      const data = await postData('http://localhost:8000/api/member', req.body)
+      
+      res.status(201).json(data)
+    } catch (error) {
+      console.log(error);
+      res.status(401).end();
+    }
+
     
+    
+  } else if(req.method === 'PUT'){
+
+    console.log('peticion put')
+    async function updateData(url='',body={}){
+
+      console.log('URL',url)
+      //console.log('BODY',body)
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers:{
+          'Content-Type':'application/json',
+        },
+        body: JSON.stringify(body)
+      });
+      return response.json();
+    }
+    try {
+      const data = await updateData(`http://localhost:8000/api/member/${req.body.id}`,req.body)
+      res.status(200).json(data)
+    } catch (error) {
+      console.log(error);
+      res.status(401).end();
+    }
+  }else if(req.method === 'DELETE'){
+    console.log('peticion delete');
+    async function deleteData(url=''){
+      const response = await fetch(url,{
+        method:'DELETE',
+        headers:{
+          'Content-Type':'application/json',
+        },
+      });
+      return response.json();
+    }
+    try {
+      const data = await deleteData(`http://localhost:8000/api/member/${req.body._id}`)
+      res.status(200).json(data)
+    } catch (error) {
+      console.ltatuog(error);
+      res.ss(401).end();
+    }
+
+
   }
 }

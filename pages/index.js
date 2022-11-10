@@ -141,7 +141,7 @@ export default function Example() {
         ```
       */}
       
-
+      
       <DashboardSidebarMobile 
         navigation={navigation}
         secondaryNavigation={secondaryNavigation}

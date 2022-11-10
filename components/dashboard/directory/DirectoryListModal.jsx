@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/24/outline'
 import { useGlobalInfo } from '../../../context/GlobalContext'
@@ -12,7 +12,7 @@ export default function DirectoryListModal() {
   
   async function postData(url='',body={}){
 
-    console.log('body', body)
+    
     const response = await fetch(url,{
       method:'POST',
       headers:{
@@ -23,23 +23,37 @@ export default function DirectoryListModal() {
     return response.json();
   }
 
-  const mutation = useMutation(body => postData('api/members', body), {
+  const mutationPost = useMutation(body => postData('api/members', body), {
     onSuccess: data => {
       const oldMembers = queryClient.getQueryData(['members']);
       queryClient.setQueryData(['members'], [...oldMembers, data])
     },
-})
+  })
 
 
-
+  async function updateData(url='',body={}){
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body: JSON.stringify(body)
+    });
+    return response.json();
+  }
+  const mutationUpdate = useMutation(body => updateData('api/members', body), {
+    onSuccess: data => {
+      console.log(data)
+      const oldMember = queryClient.getQueryData(['members']);
+      queryClient.setQueryData(['members'], [...oldMember.map(member => member._id === data._id ? {...member, ...data}: member)])
+    }
+  })
 
 
 
 
   const {
-    //propsReactQuery,
     data,setData,
-    updateData,
     open, setOpen,
     currentMember,
     setCurrentMember,
@@ -81,33 +95,24 @@ export default function DirectoryListModal() {
 
     
     if (buttonType == "add") {
-      setName(''),
-      setPhone(''),
-      setEmail(''),
-      setTitle(''),
-      setTeam(''),
-      setLocation(''),
-      setSits(''),
-      setSalary(''),
-      setBirthday(''),
+      setName('')
+      setPhone('')
+      setEmail('')
+      setTitle('')
+      setTeam('')
+      setLocation('')
+      setSits('')
+      setSalary('')
+      setBirthday('')
       setAbout('')
       
       try {
-        
-        mutation.mutate(newDataMember)
-
+        mutationPost.mutate(newDataMember)
       } catch (error) {
-
         console.log(error);
       }
-
-        
         setOpen(false);
-      
-    } else {
-
-      
-
+    } else if(buttonType =='update'){
       try {
         let updateDataMember = {
           id:currentMember._id,
@@ -126,27 +131,14 @@ export default function DirectoryListModal() {
           coverImageUrl,
           about,
         };
-        setIsLoading(false)
-        setIsSuccess(true)
 
-        const updatedCard = await updateData(`http://localhost:8000/api/member/${currentMember._id}`,updateDataMember)
+        mutationUpdate.mutate(updateDataMember)
         
-        setData([
-          ...data.map((member) =>
-            member._id == updatedCard._id ? { ...member, ...updatedCard } : member
-          ),
-        ]);
         setCurrentMember(updateDataMember)
-        
       } catch (error) {
-        setIsLoading(false)
-        setIsError(true)
+        console.log(error);
         
       }
-
-      //const a = [...newDirectory.map((member) =>member.id == id ? { ...member, ...updateDirectoryMember } : member)]
-
-      //console.log(a);
       
 
       setOpen(false);

@@ -1,6 +1,7 @@
 import { FunnelIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/20/solid";
 import App from "next/app";
 import { useEffect } from "react";
+import { useMutation } from "react-query";
 import { useGlobalInfo } from "../../../context/GlobalContext";
 import DirectoryListModal from "./DirectoryListModal";
 
@@ -13,37 +14,32 @@ export default function DirectoryList() {
     open, 
     setOpen, 
     setButtonType,
-    getData,
     filter,setFilter,
 
    } = useGlobalInfo();
 
   const { data: directory, isSuccess, isLoading, isError } = propsReactQuery;
 
-
+  
 
   function addMember() {
     setButtonType('add')
     setOpen(true)
 
   }
-  async function findMemberByName(e){
-    e.preventDefault();
+  function findMemberByName(e){
+    //e.preventDefault();
+    console.log(filter);
 
+    const regex = new RegExp('^' +filter,'i')
 
-    try {
-      const foundMember = await getData(`http://localhost:8000/api/member/browse?name=${filter}`)
-      //console.log(foundMember)
-      setData(foundMember)
-
-      
-    } catch (error) {
-
-      console.log(error);
-      
-    }
-
+    const dataFilter = directory.filter( ({name}) => regex.test(name))
+    return dataFilter
   }
+
+  const results = !filter ? directory : findMemberByName()
+  console.log(results);
+    
   return (
     <aside className="hidden w-96 flex-shrink-0 border-r border-gray-200 xl:order-first xl:flex xl:flex-col">
       <div className="px-6 pt-6 pb-4">
@@ -65,9 +61,10 @@ export default function DirectoryList() {
               </div>
               <input
                 onChange={e => setFilter(e.target.value)}
-                onKeyUp={findMemberByName}
+                //onKeyUp={findMemberByName}
                 type="search"
                 name="name"
+                //value={filter}
                 id="name"
                 className="block w-full rounded-md border-gray-300 pl-10 focus:border-pink-500 focus:ring-pink-500 sm:text-sm"
                 placeholder="Search"
@@ -100,7 +97,7 @@ export default function DirectoryList() {
             {isLoading && <p>Loading</p>}
             {isError && <p>ERROR!</p>}
             {isSuccess &&
-              directory.map((person) => (
+              results.map((person) => (
                 <li key={person._id}>
                   <div className="relative flex items-center space-x-3 px-6 py-5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500 hover:bg-gray-50">
                     <div className="flex-shrink-0">

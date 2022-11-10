@@ -6,10 +6,13 @@ import {
 import { useGlobalInfo } from "../../../context/GlobalContext";
 import { classNames } from "../../../lib/Helper";
 import Swal from 'sweetalert2'
+import { useMutation, useQueryClient } from "react-query";
 
 export default function DirectoryMember({team,tabs}) {
 
-  const {data, setData,deleteData,setIsLoading,setIsSuccess,setIsError ,currentMember: profile, setButtonType,setOpen,open,currentMember, setCurrentMember,
+  const queryClient = useQueryClient();
+
+  const {data, setData,setIsLoading,setIsSuccess,setIsError ,currentMember: profile, setButtonType,setOpen,open,currentMember, setCurrentMember,
     setName,
     setPhone,
     setEmail,
@@ -25,41 +28,51 @@ export default function DirectoryMember({team,tabs}) {
 
   function updateMember() {
     setButtonType('update')
-      setName(currentMember.name),
-      setPhone(currentMember.fields.phone),
-      setEmail(currentMember.fields.email),
-      setTitle(currentMember.fields.title),
-      setTeam(currentMember.fields.team),
-      setLocation(currentMember.fields.location),
-      setSits(currentMember.fields.sits),
-      setSalary(currentMember.fields.salary),
-      setBirthday(currentMember.fields.birthday),
+      setName(currentMember.name)
+      setPhone(currentMember.fields.phone)
+      setEmail(currentMember.fields.email)
+      setTitle(currentMember.fields.title)
+      setTeam(currentMember.fields.team)
+      setLocation(currentMember.fields.location)
+      setSits(currentMember.fields.sits)
+      setSalary(currentMember.fields.salary)
+      setBirthday(currentMember.fields.birthday)
       setAbout(currentMember.about)
+      setImageUrl(currentMember.imageUrl)
+      setCoverImageUrl(currentMember.coverImageUrl)
     
     setOpen(true)
 
   }
-  async function deleteUser(){
 
-    setIsLoading(true)
-    setIsSuccess(false)
-    setIsError(false)
-
-    try {
-      setIsLoading(false)
-      setIsSuccess(true)
-      const deletedMember = await deleteData(`http://localhost:8000/api/member/${currentMember._id}`)
-      console.log(deletedMember)
-
-      setData(data.filter(member => member._id !== deletedMember._id))
-      setCurrentMember(null)
-    } catch (error) {
-      setIsError(true)
-      setIsLoading(false)
-      console.log(error);
+  async function deleteData(url='',body = {}){
+    const response = await fetch(url,{
+      method:'DELETE',
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body:JSON.stringify(body)
       
-    }
+    });
+    return response.json();
 
+  }
+
+  const mutationDelete = useMutation(body => deleteData('api/members', body), {
+      
+    onSuccess: data => {
+      
+      const oldMembers = queryClient.getQueryData(['members']);
+
+      queryClient.setQueryData(['members'], [...oldMembers.filter(member => member._id !== data._id)])
+      //queryClient.invalidateQueries(['members'])
+
+    },
+  })
+
+  function deleteUser(){
+    mutationDelete.mutate(currentMember)
+    setCurrentMember(null)
    }
 
   return (
