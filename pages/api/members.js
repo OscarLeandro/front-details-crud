@@ -19,21 +19,6 @@ export default async function handler(req, res) {
       
     }
 
-    async function getDataByName(url = "") {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return response.json();
-    }
-
-    try {
-      
-    } catch (error) {
-      
-    }
   }else if(req.method === 'POST'){
     
 
@@ -65,9 +50,6 @@ export default async function handler(req, res) {
 
     console.log('peticion put')
     async function updateData(url='',body={}){
-
-      console.log('URL',url)
-      //console.log('BODY',body)
       const response = await fetch(url, {
         method: 'PUT',
         headers:{

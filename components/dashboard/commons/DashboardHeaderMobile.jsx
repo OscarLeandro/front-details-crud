@@ -1,6 +1,9 @@
 import { Bars3Icon } from "@heroicons/react/24/outline";
+import { useIndexInfo } from "../../../context/IndexContext";
 
 export default function DashboardHeaderMobile() {
+
+  const {sidebarOpen, setSidebarOpen} = useIndexInfo()
   return (
     <div className="lg:hidden">
             <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-1.5">

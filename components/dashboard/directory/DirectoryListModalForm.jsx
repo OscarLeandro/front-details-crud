@@ -1,4 +1,4 @@
-import { useGlobalInfo } from "../../../context/GlobalContext";
+import { useIndexInfo } from "../../../context/IndexContext";
 
 
 export default function DirectoryListModalForm() {
@@ -15,7 +15,7 @@ export default function DirectoryListModalForm() {
     about, setAbout,
     imageUrl, setImageUrl,
     coverImageUrl, setCoverImageUrl,
-  } = useGlobalInfo();
+  } = useIndexInfo();
 
 
   function handleFileInput(e){

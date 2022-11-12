@@ -3,7 +3,7 @@ import {
     EnvelopeIcon,
     PhoneIcon,
   } from "@heroicons/react/20/solid";
-import { useGlobalInfo } from "../../../context/GlobalContext";
+import { useIndexInfo } from "../../../context/IndexContext";
 import { classNames } from "../../../lib/Helper";
 import Swal from 'sweetalert2'
 import { useMutation, useQueryClient } from "react-query";
@@ -24,7 +24,7 @@ export default function DirectoryMember({team,tabs}) {
     setBirthday,
     setAbout,
     setImageUrl,
-    setCoverImageUrl} = useGlobalInfo();
+    setCoverImageUrl} = useIndexInfo();
 
   function updateMember() {
     setButtonType('update')
@@ -63,9 +63,7 @@ export default function DirectoryMember({team,tabs}) {
     onSuccess: data => {
       
       const oldMembers = queryClient.getQueryData(['members']);
-
       queryClient.setQueryData(['members'], [...oldMembers.filter(member => member._id !== data._id)])
-      //queryClient.invalidateQueries(['members'])
 
     },
   })

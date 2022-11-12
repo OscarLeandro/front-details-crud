@@ -2,11 +2,11 @@ import React from 'react'
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useGlobalInfo } from '../../../context/GlobalContext';
+import { useIndexInfo } from '../../../context/IndexContext';
 import { classNames } from '../../../lib/Helper';
 export default function DashboardSidebarMobile({navigation, secondaryNavigation, user}) {
 
-  const {sidebarOpen, setSidebarOpen} = useGlobalInfo()
+  const {sidebarOpen, setSidebarOpen} = useIndexInfo()
   return (
     <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog

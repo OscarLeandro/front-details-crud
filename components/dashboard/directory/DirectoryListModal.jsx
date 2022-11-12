@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/24/outline'
-import { useGlobalInfo } from '../../../context/GlobalContext'
+import { useIndexInfo } from '../../../context/IndexContext'
 import DirectoryListModalForm from './DirectoryListModalForm'
 import { useMutation, useQueryClient } from 'react-query'
-
+import {KEY_MEMBERS} from '../../../helpers/query-keys'
 export default function DirectoryListModal() {
 
   const queryClient = useQueryClient();
@@ -25,8 +25,9 @@ export default function DirectoryListModal() {
 
   const mutationPost = useMutation(body => postData('api/members', body), {
     onSuccess: data => {
-      const oldMembers = queryClient.getQueryData(['members']);
-      queryClient.setQueryData(['members'], [...oldMembers, data])
+      const oldMembers = queryClient.getQueryData([KEY_MEMBERS]);
+      
+      queryClient.setQueryData([KEY_MEMBERS], [...oldMembers, data])
     },
   })
 
@@ -43,9 +44,20 @@ export default function DirectoryListModal() {
   }
   const mutationUpdate = useMutation(body => updateData('api/members', body), {
     onSuccess: data => {
-      console.log(data)
-      const oldMember = queryClient.getQueryData(['members']);
-      queryClient.setQueryData(['members'], [...oldMember.map(member => member._id === data._id ? {...member, ...data}: member)])
+      //console.log(data)
+      const updatedMember = data;
+      const oldMember = queryClient.getQueryData([KEY_MEMBERS]);
+
+      const updatedMembers = oldMember.map( member => {
+        if(member._id == updatedMember._id){
+          return updatedMember
+        }else{
+          return member
+        }
+      })
+      console.log(updatedMembers)
+      queryClient.setQueryData([KEY_MEMBERS], updatedMembers)
+      //queryClient.setQueryData([KEY_MEMBERS], [...oldMember.map(member => member._id === data._id ? {...member, ...data}: member)])
     }
   })
 
@@ -70,7 +82,7 @@ export default function DirectoryListModal() {
     about, setAbout,
     imageUrl, setImageUrl,
     coverImageUrl, setCoverImageUrl
-  } = useGlobalInfo();
+  } = useIndexInfo();
 
 
   async function onSubmit(e) {

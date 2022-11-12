@@ -2,7 +2,7 @@ import { FunnelIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/
 import App from "next/app";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
-import { useGlobalInfo } from "../../../context/GlobalContext";
+import { useIndexInfo } from "../../../context/IndexContext";
 import DirectoryListModal from "./DirectoryListModal";
 
 
@@ -16,7 +16,7 @@ export default function DirectoryList() {
     setButtonType,
     filter,setFilter,
 
-   } = useGlobalInfo();
+   } = useIndexInfo();
 
   const { data: directory, isSuccess, isLoading, isError } = propsReactQuery;
 
@@ -27,9 +27,7 @@ export default function DirectoryList() {
     setOpen(true)
 
   }
-  function findMemberByName(e){
-    //e.preventDefault();
-    console.log(filter);
+  function findMemberByName(){
 
     const regex = new RegExp('^' +filter,'i')
 
@@ -38,7 +36,6 @@ export default function DirectoryList() {
   }
 
   const results = !filter ? directory : findMemberByName()
-  console.log(results);
     
   return (
     <aside className="hidden w-96 flex-shrink-0 border-r border-gray-200 xl:order-first xl:flex xl:flex-col">
