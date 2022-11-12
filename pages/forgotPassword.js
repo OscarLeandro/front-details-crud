@@ -9,7 +9,7 @@ export default function ForgotPassword() {
 
     const [email, setEmail] = useState('')
     const [error, setError] = useState('')
-    console.log(email);
+    //console.log(email);
     const router = useRouter()
     function resetPassword() {
         const sendPassword = sendPasswordResetEmail(auth, email)
@@ -23,7 +23,7 @@ export default function ForgotPassword() {
                 showConfirmButton: false,
                 timer: 3500
               }).then(response =>{
-                console.log(response);
+                //console.log(response);
                 response.isConfirmed = true
                 if(response.isConfirmed === true){
                     router.push('/signIn')

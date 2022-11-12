@@ -17,11 +17,11 @@ export default function DashboardSidebarDesktop({
   
 
   const router = useRouter()
-  console.log(router);
+  //console.log(router);
 
   const signState = onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log(user);
+      //console.log(user);
       setCurrentUserEmail(user.email);
     }else{
       router.push('signIn')

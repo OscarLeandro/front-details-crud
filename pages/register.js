@@ -26,7 +26,7 @@ export default function Register() {
       setPassword('')
       
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       setError(error.message)
     }
   }

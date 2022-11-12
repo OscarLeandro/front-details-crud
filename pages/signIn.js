@@ -24,9 +24,9 @@ export default function Signin() {
     try {
       setError('')
       const user = await signInWithEmailAndPassword(auth, email, password);
-      console.log(user);
+      //console.log(user);
     } catch (error) {
-      console.log(error.message);
+      //console.log(error.message);
       setError(error.message);
     }
   }
