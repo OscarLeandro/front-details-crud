@@ -1,38 +1,108 @@
 import {
   getAuth,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
   signOut,
 } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
 import LoginErrorAlert from "../components/account/LoginErrorAlert";
 
 import { useGlobalInfo } from "../context/GlobalContext";
+import { KEY_USERS } from "../helpers/query-keys";
 import { auth } from "../lib/firebase";
 
 export default function Signin() {
-  const { showCurrentUser } = useGlobalInfo();
-
+  const provider = new GoogleAuthProvider();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
+  const { currentUser, setCurrentUser,propsReactQuery } = useGlobalInfo();
+  const { data } = propsReactQuery;
+  const queryClient = useQueryClient();
+
+  
+  async function postUsers(url='',body={}){
+
+    
+    const response = await fetch(url,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    return response.json();
+  }
+
+  const mutationPost = useMutation(body => postUsers('api/users', body), {
+
+    onSuccess: data => {
+      const oldUsers = queryClient.getQueryData([KEY_USERS]);
+      
+      queryClient.setQueryData([KEY_USERS], [...oldUsers, data])
+    },
+  })
 
   async function signIn() {
     try {
-      setError('')
+      setError("");
       const user = await signInWithEmailAndPassword(auth, email, password);
-      //console.log(user);
     } catch (error) {
-      //console.log(error.message);
       setError(error.message);
     }
   }
   const signState = onAuthStateChanged(auth, (user) => {
     if (user) router.push("/");
   });
+
+  async function signWithGoogle() {
+    const signGoogle = await signInWithPopup(auth, provider)
+      .then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        const user = result.user;
+
+
+        setCurrentUser(user);
+
+        const newUser = {
+          name: user.displayName,
+          email: user.email,
+          phone: user.phoneNumber,
+          photoUrl: user.photoURL,
+          uid:user.uid
+        }
+
+        data.map(user => {
+          if(user.uid === newUser.uid){
+            return
+          }else{
+            mutationPost.mutate(newUser)
+          }
+        })
+
+
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        console.log(errorMessage);
+      });
+    console.log(provider);
+  }
+
+
+
+  
 
   return (
     <>
@@ -127,22 +197,18 @@ export default function Signin() {
                   </Link>
                 </div>
               </div>
-              {
-                error == 'Firebase: Error (auth/missing-email).' 
-                ? <LoginErrorAlert error={error}/> 
-                : error == 'Firebase: Error (auth/invalid-email).'
-                ? <LoginErrorAlert error={error} /> 
-                : error == 'Firebase: Error (auth/internal-error).'
-                ? <LoginErrorAlert error={error} /> 
-                : error == 'Firebase: Error (auth/wrong-password).'
-                && <LoginErrorAlert error={error} /> 
-                
+              {error == "Firebase: Error (auth/missing-email)." ? (
+                <LoginErrorAlert error={error} />
+              ) : error == "Firebase: Error (auth/invalid-email)." ? (
+                <LoginErrorAlert error={error} />
+              ) : error == "Firebase: Error (auth/internal-error)." ? (
+                <LoginErrorAlert error={error} />
+              ) : (
+                error == "Firebase: Error (auth/wrong-password)." && (
+                  <LoginErrorAlert error={error} />
+                )
+              )}
 
-                
-                
-                
-              }
-              
               <div>
                 <button
                   onClick={signIn}
@@ -166,48 +232,30 @@ export default function Signin() {
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="mt-6 grid grid-cols-1 gap-1">
+                
+
                 <div>
                   <a
-                    onClick={showCurrentUser}
-                    href="#"
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
+                    onClick={signWithGoogle}
+                    //href="#"
+                    className=" cursor-pointer inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
                   >
-                    <span className="sr-only">Sign in with Facebook</span>
+                    <span className="sr-only">Sign in with Google</span>
                     <svg
-                      className="h-5 w-5"
-                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 bi bi-google"
                       fill="currentColor"
-                      viewBox="0 0 20 20"
+                      
+                      viewBox="0 0 16 16"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M20 10c0-5.523-4.477-10-10-10S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"
-                        clipRule="evenodd"
-                      />
+                      {" "}
+                      <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z" />{" "}
                     </svg>
                   </a>
                 </div>
 
-                <div>
-                  <a
-                    onClick={() => signOut(auth)}
-                    href="#"
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
-                  >
-                    <span className="sr-only">Sign in with Twitter</span>
-                    <svg
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </a>
-                </div>
-
-                <div>
+                {/* <div>
                   <a
                     href="#"
                     className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
@@ -226,7 +274,7 @@ export default function Signin() {
                       />
                     </svg>
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

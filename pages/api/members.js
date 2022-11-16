@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       return response.json();
     }
     try {
-      const data = await getData('http://localhost:8000/api/member')
+      const data = await getData('http://localhost:8000/api/members')
       res.status(200).json(data)
     } catch (error) {
       res.status(401).end();
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const data = await postData('http://localhost:8000/api/member', req.body)
+      const data = await postData('http://localhost:8000/api/members', req.body)
       
       res.status(201).json(data)
     } catch (error) {
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
       return response.json();
     }
     try {
-      const data = await updateData(`http://localhost:8000/api/member/${req.body.id}`,req.body)
+      const data = await updateData(`http://localhost:8000/api/members/${req.body.id}`,req.body)
       res.status(200).json(data)
     } catch (error) {
       console.log(error);
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
       return response.json();
     }
     try {
-      const data = await deleteData(`http://localhost:8000/api/member/${req.body._id}`)
+      const data = await deleteData(`http://localhost:8000/api/members/${req.body._id}`)
       res.status(200).json(data)
     } catch (error) {
       console.ltatuog(error);

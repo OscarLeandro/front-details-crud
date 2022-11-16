@@ -1,19 +1,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { directory, profile } from "../pages";
-import { useQuery, useMutation, queryClient } from "react-query";
-import { auth } from "../lib/firebase";
+import { useQuery } from "react-query";
+import { KEY_USERS } from "../helpers/query-keys";
 
 export const GlobalContext = createContext();
 
 const GlobalContextProvider = ({ children }) => {
-  function showCurrentUser() {
-    try {
-      const user = auth.currentUser;
-      setCurrentUser(user.email);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  
+
+  async function getUsers(url = ''){
+    const response = await fetch(url,{
+        method:'GET',
+        headers:{
+          'Content-Type':'application/json',
+        }
+    });
+    return response.json();
+}
+
+const propsReactQuery = useQuery([KEY_USERS], () =>
+  getUsers('api/users')
+)
 
   //REGISTER STATE
   const [name, setName] = useState("");
@@ -25,7 +31,8 @@ const GlobalContextProvider = ({ children }) => {
 
   //current user INFO
   const [currentUserEmail, setCurrentUserEmail] = useState("");
-
+  const [currentUser, setCurrentUser] = useState('')
+  console.log(currentUser.email);
   return (
     <GlobalContext.Provider
       value={{
@@ -37,9 +44,10 @@ const GlobalContextProvider = ({ children }) => {
         setPassword,
         photo,
         setPhoto,
-        showCurrentUser,
         currentUserEmail,
         setCurrentUserEmail,
+        currentUser,setCurrentUser,
+        propsReactQuery,
       }}
     >
       {children}

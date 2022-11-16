@@ -17,7 +17,7 @@ export default function DashboardSidebarDesktop({
   
 
   const router = useRouter()
-  //console.log(router);
+  console.log(auth)
 
   const signState = onAuthStateChanged(auth, (user) => {
     if (user) {
